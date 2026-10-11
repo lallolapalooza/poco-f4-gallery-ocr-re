@@ -1,0 +1,51 @@
+{
+  "source": "/tmp/gallery/lib/arm64-v8a/libmiocr.so",
+  "charset": {
+    "start": 7554292,
+    "end": 7585242,
+    "entries": 7747
+  },
+  "models": {
+    "recognizer": {
+      "start": 4536776,
+      "end_guess": 7554292,
+      "end": 7554292,
+      "size": 3017516,
+      "inputs": {
+        "input_image": [
+          0,
+          1,
+          32,
+          0
+        ]
+      },
+      "outputs": {
+        "output": [
+          0,
+          7888,
+          0
+        ]
+      }
+    },
+    "orientation": {
+      "start": 7585240,
+      "end_guess": 7602176,
+      "end": 8511560,
+      "size": 926320,
+      "inputs": {
+        "input_image": [
+          1,
+          1,
+          48,
+          192
+        ]
+      },
+      "outputs": {
+        "output": [
+          1,
+          4
+        ]
+      }
+    }
+  }
+}
