@@ -1,0 +1,33 @@
+# 分词-post 干预规则
+
+version: 1.0
+rules:
+  - origin: '只 有'
+    target: '只有'
+    pre:
+      with:
+        # - 我
+      without:
+        # - 他
+    post:
+      with:
+        - '力'
+      without:
+        - '力'
+        # - 所
+        # - 点
+
+  - origin: '只 有'
+    target: '只有'
+    pre:
+      with:
+        # - 我
+      without:
+        - '他'
+    post:
+      with:
+#        - 力
+      without:
+        # -  
+        # - 所
+        # - 点

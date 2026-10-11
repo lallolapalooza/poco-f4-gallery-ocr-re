@@ -1,0 +1,691 @@
+# 分词-post 干预规则
+
+version: 1.0
+rules:
+  - origin: '试 试看'
+    target: '试试看'
+    pre:
+      with:
+      without:
+        - '互查'
+    post:
+      with:
+      without:
+
+  - origin: '拉 肚子'
+    target: '拉肚子'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '吞 拿 鱼'
+    target: '吞拿鱼'
+    pre:
+      with:
+      without:
+        - '焗'
+    post:
+      with:
+      without:
+
+  - origin: '吞 拿 鱼'
+    target: ' 吞拿鱼'
+    pre:
+      with:
+        - '焗'
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '早就 是'
+    target: '早 就 是'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '我会'
+    target: '我 会'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '小孩 儿'
+    target: '小孩儿'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '哈 喽'
+    target: '哈喽'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '房 费'
+    target: '房费'
+    pre:
+      with:
+      without:
+        - '客'
+    post:
+      with:
+      without:
+        - '用'
+
+  - origin: '没 有'
+    target: '没有'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '没 有'
+    target: '没有 '
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+      without:
+        - ' '
+
+  - origin: '有没有'
+    target: '有 没有'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '不 会'
+    target: '不会'
+    pre:
+      with:
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '说 说话'
+    target: '说说话'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '乐 观点'
+    target: '乐观 点'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '帮我省 却'
+    target: '帮 我 省却'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '重 置'
+    target: '重置'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '主要'
+    target: '主 要'
+    pre:
+      with:
+        - '摊 '
+        - '天 '
+      without:
+    post:
+      with:
+        - ' 求'
+      without:
+
+  - origin: '无论是'
+    target: '无论 是'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '极大'
+    target: '极 大'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '预算内外'
+    target: '预算 内外'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '利 他 主义'
+    target: '利他主义'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '中 杜鹃'
+    target: '中杜鹃'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '天 启'
+    target: '天启'
+    pre:
+      with:
+      without:
+        - '得 '
+    post:
+      with:
+      without:
+        - '示'
+
+  - origin: '并板书'
+    target: '并 板书'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '不 想见'
+    target: '不想 见'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '用 得到'
+    target: '用 得 到'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '用 得到'
+    target: '用 得 到'
+    pre:
+      with:
+        - '有'
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '弄 丢'
+    target: '弄丢'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '别傻站 着'
+    target: '别 傻 站 着'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '录影 带'
+    target: '录影带'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '看 看到 底'
+    target: ' 看看 到底'
+    pre:
+      with:
+      without:
+        - ' '
+    post:
+      with:
+      without:
+
+  - origin: '看 看到 底'
+    target: '看看 到底'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '印 巴 达到 底'
+    target: '印巴达 到底'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '垂 听'
+    target: '垂听'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '呼 求'
+    target: '呼求'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '弹道会'
+    target: '弹道 会'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '面包 圈'
+    target: '面包圈'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '州 际'
+    target: ' 州际 '
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+        - ' '
+
+  - origin: '州 际'
+    target: ' 州际'
+    pre:
+      with:
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '为 此'
+    target: '为此'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '溃汤性 结 肠炎'
+    target: '溃汤性 结肠炎'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '谈 谈'
+    target: '谈谈'
+    pre:
+      with:
+      without:
+        - ' '
+    post:
+      with:
+      without:
+        - ' '
+
+  - origin: '肉毒杆 菌紧肤'
+    target: '肉毒杆菌 紧肤'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '万事 达卡'
+    target: '万事达 卡'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '房 卡'
+    target: '房卡'
+    pre:
+      with:
+      without:
+        - 远
+    post:
+      with:
+      without:
+
+  - origin: '喝 水'
+    target: '喝水'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '真的'
+    target: '真 的'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '好 些'
+    target: '好些'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '小 一 号'
+    target: '小 一号'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '吃 饱 喝 足'
+    target: '吃饱喝足 '
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+      without:
+        - ' '
+
+  - origin: '有 点儿'
+    target: '有点儿'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '洗澡'
+    target: '洗澡 '
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - '水 '
+        - '费 '
+      without:
+
+  - origin: '只 有'
+    target: '只有'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+        - '点'
+        - '所'
+        - '力'
+
+  - origin: '我办'
+    target: '我 办'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '鸟 叫'
+    target: ' 鸟 叫'
+    pre:
+      with:
+        - '听听'
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '听'
+    target: '听 '
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - '时长 '
+        - '杨 小姐 '
+      without:
+
+  - origin: '含 有所 听音素'
+    target: '含有 所 听 音素'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '听魔 法师'
+    target: '听 魔法师'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '在 座听庭 辩'
+    target: '在座 听 庭 辩'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '-听我 '
+    target: '- 听 我 '
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '听摩斯 电码'
+    target: '听 摩斯 电码'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '听看学'
+    target: '听 看 学'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '监听恼人'
+    target: '监听 恼人'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '听点'
+    target: ' 听 点 ' 
+    pre:
+      with:
+      without:
+        - ' '
+    post:
+      with:
+      without:
+        - ' '
+
+  - origin: '听任 何人'
+    target: '听 任何人'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '术士 元'
+    target: '术 士元'
+    pre:
+      with:
+      without:
+    post:
+      with:
+      without:
+
+  - origin: '的话'
+    target: '的 话'
+    pre:
+      with:
+        - ' '
+      without:
+    post:
+      with:
+        - ' '
+      without:
+
+  - origin: '日 文'
+    target: '日文 '
+    pre:
+      with:
+      without:
+    post:
+      with:
+        - '歌'
+        - '校'
+      without:
