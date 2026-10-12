@@ -1,0 +1,4 @@
+# local environments and caches — never committed
+.venv/
+**/__pycache__/
+*.pyc

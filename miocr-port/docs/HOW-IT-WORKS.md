@@ -81,11 +81,37 @@ carved model takes a 48×192 line strip and scores 4 rotations, matching
   (the graph is insensitive to the scale factor; blank = class 0).
 * Decode: greedy CTC — collapse repeats, drop class 0. Per-character x-positions come
   from the timestep span of each emitted class, which is how per-char quads are derived.
-* Class mapping: see README ("Label mapping"); recovered by rendering single glyphs and
-  comparing the emitted class with the label's index in `charset.txt` — the offset was
-  exactly +117 for every probe.
+* Class mapping: see README ("Label mapping"). Classes 1–62 are ASCII digits/letters,
+  6159–6191 are the ASCII space/punctuation block (both spelled out in code, absent from
+  the `.so` charset array), and 117+ index the extracted 7,747-entry charset. The CJK
+  alignment was recovered by rendering single glyphs and comparing the emitted class with
+  the label's index (`class == index + 117` for every probe).
 
-## 5. The detector gap (important)
+## 5. Entity types (recovered)
+
+`OCRData.OCREntity` (types 0 website, 1 phone, 2 email, 3 delivery) is produced by
+**regex rules in native code**, not by a model: `libmiocr.so` contains libc++ `std::regex`
+machinery plus a pattern table, applied per recognised line (log strings
+`"ocr entity caught exception :"`, `" regex error happend in  regexPattens  "`,
+`" LineText "`):
+
+| type | id | pattern offset | shape |
+|---|---|---|---|
+| website | 0 | `0x0451ed0` | optional `http(s)://`, domain with `com\|cn\|net\|org\|gov\|mil\|edu`, or `www.…`, optional path |
+| phone | 1 | `0x0451fec` | CN mobile (±`+86`), landline (area code `0[1-9]\d{2}`), `400/800`, `100xx`, `11[0-79]`, `12[012]`, `123xx`, `95xxx`, `952xxx` |
+| email | 2 | `0x0452170` | `local@domain.tld` |
+| delivery | 3 | — | **no vendor rule exists**; the port supplies anchored rules instead |
+
+Entity code range: `0xbc000–0x0ee000` (pattern refs from `0xcd7d0`, `0xbe9a0`, `0xd297c`,
+`0xc13a0`, `0x341df4`; log refs from `0xbc0d8`, `0xcddb4`, `0xda864`, `0xda884`).
+Gate: property `persist.vendor.camera.ocr.entity` (`0x45380b`).
+JNI shape: `com/xiaomi/ocr/sdk_ocr/OCRData$OCREntity` (`0x453510`), `…$Location`
+(`0x45352f`), `[L…$OCREntity;` (`0x4535d3`).
+
+Port: `miocr/entities.py` (patterns verbatim, non-overlapping matches, context-char
+trim so indices bound the entity, entity box = union of covered character boxes).
+
+## 6. The detector gap (important)
 
 The line detector is a **separate neural model** (`ocr_detector_model`,
 `ocr_detector_model_small`, `ocr_detector_model_large` strings) executed through
