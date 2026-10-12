@@ -56,7 +56,7 @@ def main():
 
     print("\n== recognizer on a single line ==")
     r = Recognizer()
-    for text in ("中国银行", "北京市", "ABC123"):
+    for text in ("中国银行", "北京市", "ABC123", "www.mi.com/store", "user.name@example.com"):
         img = render([text])
         line = r.recognize(np.asarray(img))
         print(f"  {text!r} -> {line.text!r} conf={line.confidence:.2f}")
@@ -106,6 +106,43 @@ def main():
     ocr.close()
     check(len(res.lines) >= 3, "three text lines separated")
     check("中国银行" in res.text, "document text recognised")
+
+    print("\n== entity extraction (recovered regexes) ==")
+    from miocr.entities import extract_entities, ENTITY_WEBSITE, ENTITY_PHONE, ENTITY_EMAIL
+    cases = [
+        ("访问 https://www.mi.com/store 了解", ENTITY_WEBSITE, "https://www.mi.com/store"),
+        ("电话 13800138000 找客服", ENTITY_PHONE, "13800138000"),
+        ("热线 400-800-1234", ENTITY_PHONE, "400-800-1234"),
+        ("邮箱 user.name@example.com 联系", ENTITY_EMAIL, "user.name@example.com"),
+        ("visit www.example.org/path?a=1", ENTITY_WEBSITE, "www.example.org/path?a=1"),
+    ]
+    for text, want_type, want_text in cases:
+        ents = extract_entities(text)
+        got = [(e.name, e.entity_text, e.start_index, e.end_index) for e in ents]
+        print(f"  {text!r} -> {got}")
+        hit = any(e.entity_type == want_type and e.entity_text == want_text for e in ents)
+        check(hit, f"finds {want_text!r} as type {want_type}")
+        check(all(text[e.start_index:e.end_index] == e.entity_text for e in ents),
+              "start/end indices slice back to entity_text")
+    check(not extract_entities("中国银行北京分行"), "no entities in plain text")
+
+    print("\n== entity extraction: delivery (type 3, our rules) ==")
+    from miocr.entities import ENTITY_DELIVERY
+    delivery_cases = [
+        ("顺丰快递单号 SF1234567890123 已发出", "SF1234567890123"),
+        ("YT1234567890123", "YT1234567890123"),
+        ("UPS 1Z999AA10123456784", "1Z999AA10123456784"),
+        ("EMS EE123456789CN", "EE123456789CN"),
+        ("快递单号 1234567890123", "1234567890123"),
+    ]
+    for text, want in delivery_cases:
+        ents = extract_entities(text)
+        print(f"  {text!r} -> {[(e.name, e.entity_text) for e in ents]}")
+        check(any(e.entity_type == ENTITY_DELIVERY and e.entity_text == want for e in ents),
+              f"finds delivery {want!r}")
+    for text in ("订单号 2026", "13800138000", "中国银行北京分行"):
+        bad = [e for e in extract_entities(text) if e.entity_type == ENTITY_DELIVERY]
+        check(not bad, f"no false delivery in {text!r}")
 
     print("\nRESULT:", "FAILED" if check.failed else "ALL CHECKS PASSED")
     return 1 if check.failed else 0

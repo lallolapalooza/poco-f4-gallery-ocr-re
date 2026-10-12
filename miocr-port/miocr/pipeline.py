@@ -13,6 +13,7 @@ from typing import Any
 import numpy as np
 
 from .detect import Box, ClassicalDetector, Detector, WholeImageDetector
+from .entities import extract_entities
 from .orientation import Orientation
 from .recognizer import Recognizer
 
@@ -31,6 +32,7 @@ class LineResult:
     box: tuple[float, float, float, float]
     chars: list[CharResult] = field(default_factory=list)
     rotation: int = 0
+    entities: list = field(default_factory=list)   # miocr.entities.Entity
 
 
 @dataclass
@@ -48,7 +50,13 @@ class Result:
                 {"lines": [{"text": l.text, "confidence": l.confidence, "box": list(l.box),
                             "rotation": l.rotation,
                             "chars": [{"text": c.text, "confidence": c.confidence,
-                                       "box": list(c.box)} for c in l.chars]}
+                                       "box": list(c.box)} for c in l.chars],
+                            "entities": [{"entity_type": e.entity_type, "name": e.name,
+                                          "entity_text": e.entity_text,
+                                          "start_index": e.start_index, "end_index": e.end_index,
+                                          "line_id": e.line_id,
+                                          "box": list(e.box) if e.box else None}
+                                         for e in l.entities]}
                           for l in self.lines]}
             ],
         }
@@ -115,7 +123,9 @@ class OCR:
                     ax0, ax1 = x0 + cy0 / max(1.0, crop.shape[0]) * span, x0 + cy1 / max(1.0, crop.shape[0]) * span
                     ay0, ay1 = y0, y1
                 chars.append(CharResult(c.text, c.confidence, (ax0, ay0, ax1, ay1)))
-            lines.append(LineResult(line.text, line.confidence, (x0, y0, x1, y1), chars, rotation))
+            entities = extract_entities(line.text, chars, line_id=len(lines))
+            lines.append(LineResult(line.text, line.confidence, (x0, y0, x1, y1), chars, rotation,
+                                    entities))
         return Result(lines=lines)
 
     def recognize_file(self, path: str) -> Result:

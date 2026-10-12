@@ -27,6 +27,14 @@ _CJK_OFFSET = 117
 NUM_CLASSES = 7888
 UNKNOWN = "\ufffd"
 
+# The model's dictionary spells ASCII out in code rather than in the .so's table, the
+# same way classes 1..62 do. Probing glyph-by-glyph recovered the printable-ASCII block:
+# class 6159 = ' ', 6160 = '!', 6161 = '"', ... 6191 = '~' (32 punctuation characters in
+# ASCII order, alphanumerics excluded because they are already classes 1..62). The .so's
+# charset array does not contain this block, so it must be applied before the CJK table.
+_ASCII_BLOCK_START = 6159
+_ASCII_BLOCK = " " + "".join(chr(c) for c in range(33, 127) if not chr(c).isalnum())
+
 _charset: list[str] | None = None
 
 
@@ -55,6 +63,9 @@ def label(cls: int) -> str:
         return chr(ord("a") + cls - 37)
     if 63 <= cls <= 116:
         return UNKNOWN
+    i = cls - _ASCII_BLOCK_START
+    if 0 <= i < len(_ASCII_BLOCK):
+        return _ASCII_BLOCK[i]
     cs = charset()
     i = cls - _CJK_OFFSET
     if 0 <= i < len(cs):

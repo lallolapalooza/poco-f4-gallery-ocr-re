@@ -53,8 +53,46 @@ for line in res.lines:
 | Text-line recognizer (CJK + Latin + digits) | **reimplemented, runs locally, exact on tests** |
 | Line orientation (0/90/180/270) | **reimplemented** |
 | Character/line positions | **reimplemented** (per-character boxes from CTC timesteps) |
-| Entity types (URL/phone/email) | not reimplemented (see HOW-IT-WORKS §App layer) |
+| Entity types (URL/phone/email) | **reimplemented** from the recovered `std::regex` rules (see below) |
+| Entity type 3 (delivery number) | implemented with **our own** anchored rules — the vendor ships none in either build |
 | Text-line **detector** | **not faithful** — the neural detector is not shipped in any `libmiocr.so` in the device dump; a classical OpenCV detector is used instead |
+
+## Entity types
+
+The SDK does entity extraction **in native code with `std::regex`**, not with a model.
+The pattern table is embedded in `libmiocr.so` and applied to each recognised line:
+
+| type | id | pattern (verbatim, file offset) |
+|---|---|---|
+| website | 0 | `0x0451ed0` — scheme-less or `http(s)://` host with TLD list `com\|cn\|net\|org\|gov\|mil\|edu`, `www.*`, optional path |
+| phone number | 1 | `0x0451fec` — CN mobile (`1[3-9]\d[ -]?\d{4}[ -]?\d{4}`, optional `+86`), landline area codes `0[1-9]\d{2}`, `400/800-…`, `100xx`, `11[0-79]`, `12[012]`, `123xx`, `95xxx`, `952xxx` |
+| email | 2 | `0x0452170` — `local@domain.tld` (dot-atom local part, 1–63 label repetitions) |
+| delivery number | 3 | **vendor rule absent** — replaced by our own anchored rules (see below) |
+
+Type 3 in the port is therefore **ours, not the vendor's**: neither the Gallery nor the
+MIUIAICR `libmiocr.so` contains a courier rule or courier vocabulary, so `entities.py`
+uses carrier-prefixed forms (`SF…`, `YT…`, `JD…`, `JT…`, `STO…`, `E…CN` EMS,
+`1Z…` UPS, `JJD…` DHL) plus bare 12–20-digit runs directly anchored to a keyword
+(`快递单号`, `运单号`, `物流单号`, `单号`, `已发货`, `tracking number`, `waybill`, `parcel`).
+Prefix/keyword anchoring keeps precision high; it is deliberately conservative rather
+than guessing at the vendor's unknown rule.
+
+Evidence: libc++ regex symbols (`basic_regex`, `__parse_alternative`, `__word_boundary`,
+`__lookahead`, `__bracket_expression`, …) clustered around the patterns; the log strings
+`"ocr entity caught exception :"`, `" regex error happend in  regexPattens  "`,
+`" LineText "`, `"ocr entity caught regex_error: "`; the JNI marshalling strings
+`com/xiaomi/ocr/sdk_ocr/OCRData$OCREntity` / `OCRData$Location` at `0x453510`/`0x45352f`
+and `[Lcom/xiaomi/ocr/sdk_ocr/OCRData$OCREntity;` at `0x4535d3`; the gate property
+`persist.vendor.camera.ocr.entity` at `0x45380b`; and the code sites that reference the
+patterns (`0xcd7d0`, `0xbe9a0`, `0xd297c`, `0xc13a0`, `0x341df4`, …) and the log strings
+(`0xbc0d8`, `0xcddb4`, `0xda864`, `0xda884`, `0xc1468`, `0xc1508`, …), i.e. the entity
+functions live in `0xbc000–0x0ee000`.
+
+`miocr/entities.py` re-implements this: the three patterns are copied verbatim, matches
+are made non-overlapping (earliest start, longest on ties), the leading context character
+that the phone/URL patterns consume is stripped so `start_index`/`end_index` bound the
+entity itself, and the entity box is the union of its characters' boxes. Two `re` vs
+`std::regex` differences remain possible (both use ECMAScript syntax here).
 
 Measured on rendered text (40 px CJK/Latin, Noto Sans CJK):
 
@@ -77,18 +115,26 @@ an exact, self-consistent mapping:
 | 1–10 | `0`–`9` |
 | 11–36 | `A`–`Z` |
 | 37–62 | `a`–`z` |
-| 63–116 | 54 labels absent from the extracted charset (emitted as U+FFFD) |
-| 117–7863 | `charset.txt[class - 117]` — 7,747 entries ('¨','¡','¿', CJK by frequency, symbols) |
+| 63–116 | 54 labels not identified (emitted as U+FFFD) |
+| **6159–6191** | **ASCII block**: `' '` then `!"#$%&'()*+,-./:;<=>?@[\]^_\`{|}~` |
+| 117–7863 (outside that block) | `charset.txt[class - 117]` — 7,747 entries ('¨','¡','¿', CJK by frequency, symbols) |
 | 7864–7887 | unused |
 
-Evidence: single-glyph probes returned `class == charset_index + 117` for every
-character (中 13→130, 国 27→144, 银 737→854, 的 3→120, 行 54→171) and `Hello`
-decoded as classes 18/41/48/48/51 = `11+7, 37+4, 37+11, 37+11, 37+14`.
+Evidence: single-glyph probes returned `class == charset_index + 117` for CJK characters
+spanning the table (中 13→130, 国 27→144, 的 3→120, 行 54→171, 桥 1000→1117, 齿 2000→2117)
+and `Hello` decoded as classes 18/41/48/48/51 = `11+7, 37+4, 37+11, 37+11, 37+14`.
 
-Known limitation: the model itself is unreliable for ASCII punctuation and spaces —
-probed glyphs land on neighbouring charset symbols (space → `charset[6042]` = `#`,
-`-` → `·`, `!` → `%`), while CJK, Latin letters and digits decode exactly. The mapping
-is faithful; the model's ASCII-punctuation head is not.
+The ASCII block is **not** in the `.so`'s charset array — the SDK spells ASCII out in code,
+exactly as it does for the digit/letter prefix — so it was recovered glyph-by-glyph
+(`'!'`→6160, `'"'`→6161 … `']'`→6184, `'_'`→6186, `'~'`→6191) and applied ahead of the CJK
+table. With it, URLs and e-mail addresses decode exactly:
+
+```
+www.mi.com/store                   -> www.mi.com/store                    (website)
+user.name@example.com              -> user.name@example.com               (email)
+https://api.open.ai.xiaomi.com/v1  -> https://api.open.ai.xiaomi.com/v1   (website)
+Tel: 13800138000                   -> Tel: 13800138000                    (phone)
+```
 
 ## Provenance / licensing
 
